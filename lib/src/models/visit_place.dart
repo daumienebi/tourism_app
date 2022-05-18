@@ -19,30 +19,6 @@ class VisitPlace{
 
   const VisitPlace({this.id,required this.nombre,required this.descripcion,required this.latitude,required this.longitude});
 
-
-//clase para convertir el VisitPlace a un Mapa
-  Map<String,Object?> toJson(){
-    return{
-      VisitPlaceFields.id  : id,
-      VisitPlaceFields.nombre : nombre,
-      VisitPlaceFields.descripcion : descripcion,
-      VisitPlaceFields.latitude : latitude,
-      VisitPlaceFields.longitude : longitude
-    };
-  }
-
-  static VisitPlace fromJson(Map<String, Object?> json) {
-    //convertir los datos de un json a objeto de tipo VisitPlace
-    return VisitPlace(
-        id: json[VisitPlaceFields.id] as int?,
-        nombre: json[VisitPlaceFields.nombre] as String,
-        descripcion: json[VisitPlaceFields.descripcion] as String,
-        latitude: json[VisitPlaceFields.latitude] as String,
-        longitude: json[VisitPlaceFields.longitude] as String,
-    );
-  }
-
-
   factory VisitPlace.fromMap(Map<String,dynamic> value) =>
       VisitPlace(
         id: value["id"],
