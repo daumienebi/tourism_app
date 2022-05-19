@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
+import 'widgets.dart';
 
 class MapWidget extends StatefulWidget{
   const MapWidget({Key? key}) : super(key: key);
@@ -12,24 +14,26 @@ class MapWidget extends StatefulWidget{
 }
 
 class _MapWidgetState extends State<MapWidget>{
-
-  //double latitude =  43.362343;
-  //double longitude = -8.411540;
-  //camera initial position
+  final location = Location().getLocation();
+  late LocationData _userLocation;
+  late LocationData _markerLocation;
   Set<Marker> _markerList = {};
-  Marker? _location;
-  final Marker _marker = Marker(markerId: MarkerId("randomMarker"),
-    infoWindow: const InfoWindow(
+  late Marker? _location;
+  final Marker _marker = Marker(
+      markerId: MarkerId("randomMarker"),
+      infoWindow: const InfoWindow(
       title: 'Damian',
-    ),
-    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
-    position: LatLng(43.362343,-8.411540)
+      ),
+      icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
+      position: LatLng(43.362343,-8.411540)
   );
+
   static const _initialCameraPosition = CameraPosition(
       target: LatLng(43.362343,-8.411540),
       zoom: 11.5
   );
-
+  String placeName = "";
+  String desc = "";
 
 
   //Google Map stuffs
@@ -54,39 +58,85 @@ class _MapWidgetState extends State<MapWidget>{
   final bool _nightMode = false;
 
 
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-   final GoogleMap googleMap = GoogleMap(
+    final GoogleMap googleMap = GoogleMap(
 
-     initialCameraPosition: _initialCameraPosition,
-     compassEnabled: _compasActivated,
-     mapToolbarEnabled: _toolBarActivated,
-     cameraTargetBounds: _cameraTargetBounds,
-     minMaxZoomPreference: _minMaxZoomPreference,
-     mapType: _mapType,
-     rotateGesturesEnabled: _rotationActivated,
-     scrollGesturesEnabled: _scrollActivated,
-     tiltGesturesEnabled: _tiltActivated,
-     zoomControlsEnabled: _zoomControlsActivated,
-     zoomGesturesEnabled: _zoomGestureActivated,
-     myLocationButtonEnabled: _localizationActivated,
-     myLocationEnabled: _localizationButtonActivated,
-     onMapCreated: onMapCreate,
-     //onCameraMove: _updateCameraPosition,
-     trafficEnabled: _trafficActivated,
-     onLongPress: _addMarkerToMap,
-     markers: _markerList
+      initialCameraPosition: const CameraPosition(
+          target: LatLng(43.362343,-8.411540),
+          zoom: 11.5
+      ),
+      compassEnabled: _compasActivated,
+      mapToolbarEnabled: _toolBarActivated,
+      cameraTargetBounds: _cameraTargetBounds,
+      minMaxZoomPreference: _minMaxZoomPreference,
+      mapType: _mapType,
+      rotateGesturesEnabled: _rotationActivated,
+      scrollGesturesEnabled: _scrollActivated,
+      tiltGesturesEnabled: _tiltActivated,
+      zoomControlsEnabled: _zoomControlsActivated,
+      zoomGesturesEnabled: _zoomGestureActivated,
+      myLocationButtonEnabled: _localizationActivated,
+      myLocationEnabled: _localizationButtonActivated,
+      onMapCreated: onMapCreate,
+      onCameraMove: _updateCameraPosition,
+      trafficEnabled: _trafficActivated,
+      onLongPress: _addMarkerToMap,
+      markers: _markerList
+    );
 
+    return Scaffold(
+      body: _createMap(),
    );
 
-   return Scaffold(
-     body: googleMap,
-     floatingActionButton: FloatingActionButton(
-       child: Icon(Icons.map),
-       onPressed: (){}
-     ),
-   );
+  }
+
+  Widget _getMap(double latitude,double longitude){
+    final GoogleMap googleMap = GoogleMap(
+
+        initialCameraPosition: CameraPosition(
+            target: LatLng(latitude,longitude),
+            zoom: 11.5
+        ),
+        compassEnabled: _compasActivated,
+        mapToolbarEnabled: _toolBarActivated,
+        cameraTargetBounds: _cameraTargetBounds,
+        minMaxZoomPreference: _minMaxZoomPreference,
+        mapType: _mapType,
+        rotateGesturesEnabled: _rotationActivated,
+        scrollGesturesEnabled: _scrollActivated,
+        tiltGesturesEnabled: _tiltActivated,
+        zoomControlsEnabled: _zoomControlsActivated,
+        zoomGesturesEnabled: _zoomGestureActivated,
+        myLocationButtonEnabled: _localizationActivated,
+        myLocationEnabled: _localizationButtonActivated,
+        onMapCreated: onMapCreate,
+        onCameraMove: _updateCameraPosition,
+        trafficEnabled: _trafficActivated,
+        onLongPress: _addMarkerToMap,
+        markers: _markerList
+
+    );
+    return googleMap;
+  }
+
+  Widget _createMap(){
+    //porque se tiene que recoger la ubicacion actual del usuario antes de crear el mapa
+    return FutureBuilder(
+        future: location,
+        builder: (BuildContext context, AsyncSnapshot snapshot){
+          if(snapshot.hasData){
+            final position = snapshot.data;
+            //_userLocation = position;
+            return SafeArea(
+                child: _getMap(position.latitude, position.longitude)
+            );
+          }else{
+            return const Center(child: LinearProgressIndicator());
+          }
+        }
+    );
   }
 
   void _onLongPress(){
@@ -105,42 +155,80 @@ class _MapWidgetState extends State<MapWidget>{
 
   void _addMarkerToMap(LatLng position){
     //Receives the position add add the marker to the map
-      setState(() {
-        int id =1;
-        Marker newMarker = Marker(
-            markerId: MarkerId('selectedLocation'),
-            infoWindow: const InfoWindow(
-              title: 'Selected Location'
-            ),
-            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
-            position: position
+    _popUpForm();
+    setState(() {
+      _markerList.add(Marker(
+          markerId: MarkerId('markerid'),
+          infoWindow: InfoWindow(
+            title: placeName,
+            snippet: 'Place of interest',
 
-        );
-        _markerList.add(newMarker);
-        openDialog();
-      });
+          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRose),
+          position: position
+      )
+      );
+    });
+
   }
 
-  Future openDialog() => showDialog(
+   _popUpForm() async{
+    showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Add new Location"),
-        content: TextField(
-          decoration: InputDecoration(
-            hintText: 'Enter the location name'
+      builder: (_) {
+        TextEditingController nameController = TextEditingController();
+        TextEditingController descController = TextEditingController();
+        TextEditingController latitudeController = TextEditingController(text: _cameraPosition.target.latitude.toString());
+        TextEditingController longitudeController = TextEditingController(text: _cameraPosition.target.longitude.toString());
+        return AlertDialog(
+          title: const Text('Add a new place of interest'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: nameController,
+                  decoration: InputDecorations.nameField()
+                ),
+                TextFormField(
+                  controller: descController,
+                  decoration: InputDecorations.descField(),
+                  maxLines: null,
+                ),
+                TextFormField(
+                  controller: latitudeController,
+                  decoration: InputDecorations.latField(),
+                  enabled: false,
+                ),
+                TextFormField(
+                  controller: longitudeController,
+                  decoration: InputDecorations.lngField()
+                ),
+              ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-              onPressed: (){print("tpm");},
-              child: Text("submit")
-          )
-        ],
-      )
-  );
-  void onMapCreate(GoogleMapController mapController){
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                placeName = nameController.text;
+                desc = descController.text;
+                Navigator.pop(context);
+                },
+                child: Text('Save'),
+              ),
+            ],
+          );
+        },
+      );
+  }
+
+    void onMapCreate(GoogleMapController mapController){
     setState(() {
-      _mapController = _mapController;
+      //corregido, the equaled value vas _mapController b4
+      _mapController = mapController;
     });
   }
 }
