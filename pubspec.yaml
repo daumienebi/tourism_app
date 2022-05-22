@@ -36,6 +36,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   google_maps_flutter: ^2.1.5
   location: ^4.2.0
+  sqflite:
+  path:
+  provider: ^6.0.2
+  new_gradient_app_bar: ^0.2.0
 
 dev_dependencies:
   flutter_test:

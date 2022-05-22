@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MyDrawer extends StatelessWidget{
   @override
@@ -17,13 +18,28 @@ class MyDrawer extends StatelessWidget{
       lista.add(ListTile(
           title: Text("Saved Locations"),
           trailing: Icon(Icons.place),
-          onTap: ()=> Navigator.pushNamed(context, 'mostrar_lugares')
+          onTap: ()=> Navigator.pushNamed(context, 'placeslist')
 
       ));
       lista.add(ListTile(
-        title: Text("Google Maps"),
+        title: Text("Change to Terrain map"),
         trailing: Icon(Icons.web),
-        onTap: ()=>_funcionNoImplementada(context),
+        onTap: ()=>_unImplementedFu(context),
+      ));
+      lista.add(ListTile(
+        title: Text("Change to Hybrid map"),
+        trailing: Icon(Icons.map),
+
+      ));
+      lista.add(ListTile(
+        title: Text("Change to Satelite map"),
+        trailing: Icon(Icons.satellite),
+        onTap: ()=>_unImplementedFu(context),
+      ));
+      lista.add(ListTile(
+        title: Text("Night mode"),
+        trailing: Icon(Icons.nightlight_round,color: Colors.black12,),
+        onTap: ()=>_unImplementedFu(context),
       ));
       return lista;
     }
@@ -47,12 +63,6 @@ class MyDrawer extends StatelessWidget{
                   ),
                   //puntos
                   SizedBox(width: 20,),
-                  /*
-                Consumer<PuntosProvider>(
-                  builder: (BuildContext context,provider,_) =>
-                    Text("Puntos : ${provider.puntos}",style: _estiloPuntos,),
-                  ),
-                */
                 ],
               ),
             ),
@@ -69,7 +79,7 @@ class MyDrawer extends StatelessWidget{
     );
   }
 
-  _funcionNoImplementada (context){
+  _unImplementedFu (context){
     return showDialog(
         context: context,
         builder: (_) =>AlertDialog(

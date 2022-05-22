@@ -7,7 +7,7 @@ class VisitPlaceFields{
   static final String longitude = 'longitude';
 
   //crear una lista estatica con el nombre de los valores para ayudar en la obtencion de datos de la bbd
-  static final List <String> valores =[id,name,description,latitude,longitude];
+  static final List <String> values =[id,name,description,latitude,longitude];
 }
 
 class VisitPlace{

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:new_gradient_app_bar/new_gradient_app_bar.dart';
 import 'package:tourisim_app/src/widgets/my_drawer.dart';
 import 'package:tourisim_app/src/widgets/widgets.dart';
 
@@ -9,14 +10,11 @@ class HomePage extends StatelessWidget{
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.visibility_sharp),
-            onPressed: (
-                //Address finder
-                ){}
-        ),
       drawer: MyDrawer(),
-      appBar: AppBar(
+
+
+      /*
+      AppBar(
         actions: [
           Container(
               margin: EdgeInsets.only(right: 10),
@@ -25,6 +23,8 @@ class HomePage extends StatelessWidget{
         ],
         title: Text("Tourisim App"),
       ),
+
+       */
       body: MapWidget()
     );
   }
