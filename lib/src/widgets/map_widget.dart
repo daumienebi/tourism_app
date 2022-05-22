@@ -36,7 +36,7 @@ class _MapWidgetState extends State<MapWidget>
   final CameraTargetBounds _cameraTargetBounds = CameraTargetBounds.unbounded;
   final MinMaxZoomPreference _minMaxZoomPreference =
       MinMaxZoomPreference.unbounded;
-  MapType _mapType = MapType.terrain;
+  MapType _mapType = MapType.hybrid;
   final bool _rotationActivated = true;
   final bool _scrollActivated = true;
   final bool _tiltActivated = true;
@@ -218,7 +218,7 @@ class _MapWidgetState extends State<MapWidget>
     LatLng target = LatLng(double.parse(place.latitude), double.parse(place.longitude));
     setState(() {
 
-      CameraPosition camaraPosition = CameraPosition(target: target,zoom: 10);
+      CameraPosition camaraPosition = CameraPosition(target: target,zoom: 18);
       _mapController.animateCamera(
           CameraUpdate.newCameraPosition(camaraPosition));
       _mapType = MapType.hybrid;
