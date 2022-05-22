@@ -22,24 +22,6 @@ class _MapWidgetState extends State<MapWidget>
 
   Set<Marker> _markerList = {};
 
-  Set<Marker> mar = {
-    new Marker(
-        markerId: MarkerId('id1'),
-        icon: BitmapDescriptor.defaultMarker,
-        position: LatLng(43.362343, -8.411540)),
-    new Marker(
-        markerId: MarkerId('id2'),
-        icon: BitmapDescriptor.defaultMarker,
-        position: LatLng(43.962343, -8.411540)),
-    new Marker(
-        markerId: MarkerId('id3'),
-        icon: BitmapDescriptor.defaultMarker,
-        position: LatLng(43.762343, -8.411540)),
-    new Marker(
-        markerId: MarkerId('id4'),
-        icon: BitmapDescriptor.defaultMarker,
-        position: LatLng(43.662343, -8.411540)),
-  };
   static const _initialCameraPosition =
       CameraPosition(target: LatLng(43.362343, -8.411540), zoom: 7.5);
   String placeName = "";
@@ -71,12 +53,11 @@ class _MapWidgetState extends State<MapWidget>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      /*
       floatingActionButton: FloatingActionButton(
         onPressed: (){
           showModalBottomSheet(context: context, builder: (BuildContext ctx){
             return Container(
-                height: MediaQuery.of(context).size.height * .60,
+                height: MediaQuery.of(context).size.height * 50,
               child:
                   ListView(
                     children: _drawerItems(context)
@@ -84,34 +65,48 @@ class _MapWidgetState extends State<MapWidget>
             );
           });
         },
-        child: Icon(Icons.more_sharp),
-      ),
-      */
-
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.terrain),label: 'Terrain Map' ),
-          BottomNavigationBarItem(icon: Icon(Icons.map),label: 'Default Map'),
-
-        ],
-      ),
-      drawer: Drawer(
-        child: _drawerContent(context),
+        child: Icon(Icons.more_sharp,),
+        backgroundColor: Colors.cyan[300] ,
       ),
       appBar: NewGradientAppBar(
         title: Text('Tourism App'),
         gradient: LinearGradient(colors: [Colors.cyan, Colors.cyan, Colors.blueAccent]),
         actions: [
-          InkWell(
-            child: Icon(Icons.refresh, size: 30,),
-            onTap: () => Navigator.pushNamed(context, 'placeslist',arguments: moveToLocation)
+
+          Consumer(
+          builder: (_,VisitPlaceProvider provider, __) =>
+             InkWell(
+                child:Stack(
+                  alignment: Alignment.center,
+                    children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.list_alt),
+                            Text('Places', overflow: TextOverflow.ellipsis),
+                          ],
+                      ),
+                 Positioned(
+                     top: 0,
+                     right: 0,
+                     child: Container(
+                       padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                       decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                       alignment: Alignment.center,
+                       child: Text('${provider.placesList.length}'),
+                     ),
+                 )
+                  ]
+              ),
+              onTap: () => Navigator.pushNamed(context, 'placeslist',arguments: moveToLocation)
+            ),
           ),
           SizedBox(width: 15,),
           InkWell(
-            child: Icon(Icons.search, size: 30,),
-
-            onTap: ()=> showSearch(context: context, delegate: MySearchBar())
-          ),
+              child: Icon(Icons.search, size: 30,),
+              onTap: ()=> showSearch(context: context, delegate: MySearchBar())
+            ),
+          SizedBox(width: 10,),
         ],
       ),
       body: _createMap(),
@@ -142,7 +137,7 @@ class _MapWidgetState extends State<MapWidget>
 
     final GoogleMap googleMap = GoogleMap(
         initialCameraPosition:
-            CameraPosition(target: LatLng(latitude, longitude), zoom: 4),
+            CameraPosition(target: LatLng(latitude, longitude), zoom: 7),
         compassEnabled: _compasActivated,
         mapToolbarEnabled: _toolBarActivated,
         cameraTargetBounds: _cameraTargetBounds,
@@ -159,7 +154,7 @@ class _MapWidgetState extends State<MapWidget>
         onCameraMove: _updateCameraPosition,
         trafficEnabled: _trafficActivated,
         onLongPress: _addMarkerToMap,
-        markers: _markerList
+        markers: visitPlaceProvider.markers
 
     );
 
@@ -178,16 +173,9 @@ class _MapWidgetState extends State<MapWidget>
             return SafeArea(
                 child: _getMap(position.latitude, position.longitude));
           } else {
-            return const Center(child: LinearProgressIndicator());
+            return const Center(child: LinearProgressIndicator(semanticsLabel: 'Loading map'));
           }
         });
-  }
-
-  void _onLongPress() {
-    setState(() {
-      _mapController.animateCamera(
-          CameraUpdate.newCameraPosition(_initialCameraPosition));
-    });
   }
 
   void _updateCameraPosition(CameraPosition position) {
@@ -203,11 +191,13 @@ class _MapWidgetState extends State<MapWidget>
       ImageConfiguration(),
       "assets/images/map_icon_.png",
     );
+    VisitPlaceProvider visitPlaceProvider =
+    Provider.of<VisitPlaceProvider>(context, listen: false);
     //Receives the position add add the marker to the map
     await _popUpForm();
     setState(() {
       if (placeName.isNotEmpty) {
-        _markerList.add(Marker(
+        Marker newMarker = Marker(
             markerId: MarkerId(position.latitude.toString()),
             infoWindow: InfoWindow(
               title: placeName,
@@ -216,8 +206,11 @@ class _MapWidgetState extends State<MapWidget>
             //icon: mybitmap,
             icon: BitmapDescriptor.defaultMarkerWithHue(
                 BitmapDescriptor.hueAzure),
-            position: position));
+            position: position);
+        //_markerList.add(newMarker);
+        visitPlaceProvider.markers.add(newMarker);
       }
+
     });
   }
 
@@ -239,7 +232,7 @@ class _MapWidgetState extends State<MapWidget>
     List<Widget> items = [];
     items.add(ListTile(
         title: Text("Saved Locations"),
-        trailing: Icon(Icons.place),
+        trailing: Icon(Icons.place,color: Colors.green),
         onTap: () => Navigator.pushNamed(context, 'placeslist',arguments: moveToLocation)
 
         //Navigator.pushNamed(context, 'placeslist')
@@ -248,7 +241,7 @@ class _MapWidgetState extends State<MapWidget>
         ));
     items.add(ListTile(
       title: Text("Default map"),
-      trailing: Icon(Icons.map),
+      trailing: Icon(Icons.map,color: Colors.cyan),
       onTap: () {
         setState(() {
           _mapType = MapType.normal;
@@ -258,7 +251,7 @@ class _MapWidgetState extends State<MapWidget>
     ));
     items.add(ListTile(
       title: Text("Terrain map"),
-      trailing: Icon(Icons.terrain),
+      trailing: Icon(Icons.terrain,color: Colors.cyan),
       onTap: () {
         setState(() {
           _mapType = MapType.terrain;
@@ -268,7 +261,7 @@ class _MapWidgetState extends State<MapWidget>
     ));
     items.add(ListTile(
       title: Text("Hybrid map"),
-      trailing: Icon(Icons.map),
+      trailing: Icon(Icons.map,color: Colors.cyan,),
       onTap: () {
         setState(() {
           _mapType = MapType.hybrid;
@@ -276,82 +269,12 @@ class _MapWidgetState extends State<MapWidget>
         });
       },
     ));
-    items.add(ListTile(
-      title: Text(
-        "Satelite map",
-        style: listTextStyle,
-      ),
-      trailing: Icon(Icons.satellite),
-      onTap: () {
-        setState(() {
-          _mapType = MapType.satellite;
-          Navigator.pop(context);
-        });
-      },
-    ));
     return items;
   }
 
-  _unImplementedFu(context) {
-    return showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              title: Text("Lo sentimos"),
-              content:
-                  Text("La función elegida aun no se encuentra implementada"),
-              actions: [
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text('Cancelar')), // Cerramos el diálogo
-                TextButton(
-                    onPressed: () {
-                      // Pondríamos el código que queramos
-                      Navigator.pop(context,
-                          'Valor de vuelta'); // Envío de vuelta a quien llamó la información que quiera. NO ES OBLIGATORIO
-                    },
-                    child: Text('Aceptar')),
-              ],
-            ));
-  }
-
-  Widget _drawerContent(context) {
-    return Container(
-      color: Colors.cyan[600],
-      child: Column(children: [
-        Container(
-          padding: EdgeInsets.only(top: 40),
-          child: Row(
-            children: [
-              //foto
-              Container(
-                padding: EdgeInsets.all(5),
-                child: CircleAvatar(
-                  backgroundImage: AssetImage("assets/images/google_maps.png"),
-                  maxRadius: 50,
-                ),
-              ),
-              //puntos
-              SizedBox(
-                width: 20,
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: Container(
-            color: Colors.indigo[100],
-            child: ListView(children: _drawerItems(context)),
-          ),
-        ),
-      ]),
-    );
-  }
-  /** comment it in the video
-   * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-      <uses-permission android:name="android.permission.INTERNET"/>
-   */
-
   Future _popUpForm() {
+    //VisitPlaceProvider visitPlaceProvider =
+    //Provider.of<VisitPlaceProvider>(context, listen: true);
     return showDialog(
       context: context,
       builder: (_) {
@@ -394,15 +317,15 @@ class _MapWidgetState extends State<MapWidget>
                 ),
                 TextButton(
                   onPressed: () async {
-                    placeName = nameController.text;
-                    desc = descController.text;
-                    VisitPlace newName = VisitPlace(
-                        name: placeName.toUpperCase(),
-                        description: desc,
-                        latitude: latitudeController.text,
-                        longitude: longitudeController.text);
-                    int result = await provider.addVisitPlace(newName);
-                    _checkResult(result);
+                      placeName = nameController.text;
+                      desc = descController.text;
+                      VisitPlace newName = VisitPlace(
+                          name: placeName.toUpperCase(),
+                          description: desc,
+                          latitude: latitudeController.text,
+                          longitude: longitudeController.text);
+                          int result = await provider.addVisitPlace(newName);
+                          _checkResult(result);
                   },
                   child: Text('Save'),
                 ),
@@ -428,7 +351,6 @@ class _MapWidgetState extends State<MapWidget>
     setState(() {
       //corregido, the equaled value vas _mapController b4
       _mapController = mapController;
-      //_defaultMarker(_cameraPosition.target.latitude, _cameraPosition.target.longitude);
     });
   }
 

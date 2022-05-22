@@ -45,7 +45,6 @@ class VisitPlaceList extends StatelessWidget {
               ),
             )
           );
-
       },
       separatorBuilder: (_, int pos)  => Divider(height: 20),
     );

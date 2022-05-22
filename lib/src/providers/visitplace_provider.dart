@@ -5,7 +5,7 @@ import 'package:tourisim_app/src/providers/db_provider.dart';
 
 class VisitPlaceProvider with ChangeNotifier{
 
-  List<VisitPlace> placesList = [];
+  List<VisitPlace> _placesList = [];
   List<String> suggestions = [];
   Set<Marker> _markers = {};
 
@@ -19,6 +19,13 @@ class VisitPlaceProvider with ChangeNotifier{
     getMarkers();
     //notifyListeners();
     return _markers;
+  }
+
+  get placesList{
+    if(_placesList.isNotEmpty) return _placesList;
+    getVisitPlaces();
+    return _placesList;
+
   }
 
   Future<Set<Marker>> getMarkers() async{
@@ -35,7 +42,7 @@ class VisitPlaceProvider with ChangeNotifier{
 
   Future<List<VisitPlace>> getVisitPlaces() async{
     //DbProvider.instance.aa();
-    placesList = await DbProvider.instance.getAllVisitPlaces();
+    _placesList = await DbProvider.instance.getAllVisitPlaces();
     notifyListeners();
     return placesList;
 

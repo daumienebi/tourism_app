@@ -37,10 +37,9 @@ class VisitPlaceListPage extends StatelessWidget{
               child: Container(
                 width: 50,
                 height: 50,
-                child: CircularProgressIndicator(),
+                child: CircularProgressIndicator(semanticsLabel: 'Loading your places of interest',),
               ),
             );
-
           }
 
           final List<VisitPlace> placesList = snapshot.data!;
@@ -50,5 +49,4 @@ class VisitPlaceListPage extends StatelessWidget{
       ),
     );
   }
-
 }
