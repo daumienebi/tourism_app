@@ -34,4 +34,18 @@ class InputDecorations{
     );
   }
 
+  static InputDecoration searchPlaces(){
+    BorderSide borderSide = BorderSide(color: Colors.cyan);
+    BorderRadius borderRadius = BorderRadius.circular(20);
+    return  InputDecoration(
+      hintText: 'Name of the place',
+      border: OutlineInputBorder(
+        borderRadius: borderRadius,
+        borderSide: borderSide,
+
+      ),
+      prefixIcon: Icon(Icons.search)
+
+    );
+  }
 }

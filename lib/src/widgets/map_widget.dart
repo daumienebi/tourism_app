@@ -29,7 +29,7 @@ class _MapWidgetState extends State<MapWidget>
   VisitPlace p = new VisitPlace(name: 'name', description: 'description', latitude: 'latitude', longitude: 'longitude');
   //Google Map stuffs
   CameraPosition _cameraPosition = _initialCameraPosition;
-  final bool _mapCreated = false;
+  bool _mapCreated = false;
   final bool _mapMoving = false;
   final bool _compasActivated = true;
   final bool _toolBarActivated = false;
@@ -72,35 +72,11 @@ class _MapWidgetState extends State<MapWidget>
         title: Text('Tourism App'),
         gradient: LinearGradient(colors: [Colors.cyan, Colors.cyan, Colors.blueAccent]),
         actions: [
-
-          Consumer(
-          builder: (_,VisitPlaceProvider provider, __) =>
-             InkWell(
-                child:Stack(
-                  alignment: Alignment.center,
-                    children: [
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.list_alt),
-                            Text('Places', overflow: TextOverflow.ellipsis),
-                          ],
-                      ),
-                 Positioned(
-                     top: 0,
-                     right: 0,
-                     child: Container(
-                       padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                       decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
-                       alignment: Alignment.center,
-                       child: Text('${provider.placesList.length}'),
-                     ),
-                 )
-                  ]
-              ),
-              onTap: () => Navigator.pushNamed(context, 'placeslist',arguments: moveToLocation)
-            ),
+          InkWell(
+              child: Icon(Icons.list_alt, size: 30,),
+              onTap: ()=> Navigator.pushNamed(context, 'placeslist',arguments: moveToLocation)
           ),
+          //GetPlacesCount(moveToLocation: moveToLocation),
           SizedBox(width: 15,),
           InkWell(
               child: Icon(Icons.search, size: 30,),
@@ -112,6 +88,12 @@ class _MapWidgetState extends State<MapWidget>
       body: _createMap(),
     );
   }
+
+  aa(){
+    setState(() {
+
+    });
+}
 
   Future<Marker> _defaultMarker(latitude, longitude) async {
     BitmapDescriptor mybitmap = await BitmapDescriptor.fromAssetImage(
@@ -206,9 +188,12 @@ class _MapWidgetState extends State<MapWidget>
         builder: (BuildContext context, AsyncSnapshot snapshot) {
           if (snapshot.hasData) {
             final position = snapshot.data;
+            _mapCreated = true;
             //_userLocation = position;
             return SafeArea(
+
                 child: _getMap(position.latitude, position.longitude));
+
           } else {
             return const Center(child: LinearProgressIndicator(semanticsLabel: 'Loading map'));
           }
@@ -232,7 +217,6 @@ class _MapWidgetState extends State<MapWidget>
     Provider.of<VisitPlaceProvider>(context, listen: false);
     //Receives the position add add the marker to the map
     await _popUpForm();
-    setState(() {
       if (placeName.isNotEmpty) {
         Marker newMarker = Marker(
             markerId: MarkerId(position.latitude.toString()),
@@ -247,19 +231,39 @@ class _MapWidgetState extends State<MapWidget>
         //_markerList.add(newMarker);
         visitPlaceProvider.markers.add(newMarker);
       }
-
-    });
   }
 
    moveToLocation(VisitPlace place){
-    LatLng target = LatLng(double.parse(place.latitude), double.parse(place.longitude));
-    setState(() {
+    if(_mapCreated){
+      LatLng target = LatLng(double.parse(place.latitude), double.parse(place.longitude));
+      setState(() {
 
-      CameraPosition camaraPosition = CameraPosition(target: target,zoom: 18);
-      _mapController.animateCamera(
-          CameraUpdate.newCameraPosition(camaraPosition));
-      _mapType = MapType.hybrid;
-    });
+        CameraPosition camaraPosition = CameraPosition(target: target,zoom: 18);
+        _mapController.animateCamera(
+            CameraUpdate.newCameraPosition(camaraPosition));
+        _mapType = MapType.hybrid;
+      });
+    }else
+      _mapNotCreated;
+
+  }
+
+  _mapNotCreated (context){
+    return showDialog(
+        context: context,
+        builder: (_) =>AlertDialog(
+          title: Text("Sorry"),
+          content: Text("The map must be loaded first"),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancel')), // Cerramos el diálogo
+            TextButton(onPressed: (){
+              // Pondríamos el código que queramos
+              Navigator.pop(context,'Valor de vuelta');     // Envío de vuelta a quien llamó la información que quiera. NO ES OBLIGATORIO
+            },
+                child: Text('Accept')),
+          ],
+        )
+    );
   }
 
   List<Widget> _drawerItems(context) {
@@ -270,7 +274,12 @@ class _MapWidgetState extends State<MapWidget>
     items.add(ListTile(
         title: Text("Saved Locations"),
         trailing: Icon(Icons.place,color: Colors.green),
-        onTap: () => Navigator.pushNamed(context, 'placeslist',arguments: moveToLocation)
+        onTap: (){
+          if(_mapCreated){
+            Navigator.pushNamed(context, 'placeslist',arguments: moveToLocation);
+          }else
+            _mapNotCreated;
+        }
 
         //Navigator.pushNamed(context, 'placeslist')
         //onTap: ()=>Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => VisitPlaceListPage()))
@@ -395,4 +404,73 @@ class _MapWidgetState extends State<MapWidget>
   // TODO: implement wantKeepAlive
   //https://stackoverflow.com/questions/56632225/google-maps-dequeuebuffer-bufferqueue-has-been-abandoned
   bool get wantKeepAlive => true;
+}
+
+/*
+InkWell(
+                child:Stack(
+                  alignment: Alignment.center,
+                    children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.list_alt),
+                            Text('Places', overflow: TextOverflow.ellipsis),
+                          ],
+                      ),
+                 Positioned(
+                     top: 0,
+                     right: 0,
+                     child: Container(
+                       padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                       decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                       alignment: Alignment.center,
+                       child: Text('${provider.placesList.length}'),
+                     ),
+                 )
+                  ]
+              ),
+              onTap: () => Navigator.pushNamed(context, 'placeslist',arguments: moveToLocation)
+            ),
+ */
+
+class GetPlacesCount extends StatelessWidget{
+  Function moveToLocation;
+  GetPlacesCount({Key? key,required this.moveToLocation}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    VisitPlaceProvider provider =
+    Provider.of<VisitPlaceProvider>(context, listen: true);
+    // TODO: implement build
+    return InkWell(
+        child:Stack(
+            alignment: Alignment.center,
+            children: [
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.list_alt),
+                  Text('Places', overflow: TextOverflow.ellipsis),
+                ],
+              ),
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red),
+                  alignment: Alignment.center,
+                  child: Text('${provider.placesList.length}'),
+                ),
+              )
+            ]
+        ),
+        onTap: () {
+
+          Navigator.pushNamed(context, 'placeslist',arguments: moveToLocation);
+        }
+    );
+  }
+
 }

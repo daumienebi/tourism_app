@@ -18,9 +18,9 @@ class VisitPlaceListPage extends StatelessWidget{
           TextButton(
               onPressed: (){},
               child:
-                    Text("${provider.placesList.length}",style: TextStyle(color: Colors.black),),
+                    Text("${provider.placesList.length}",style: TextStyle(color: Colors.white,fontSize: 17),),
             style: TextButton.styleFrom(
-              backgroundColor: Colors.grey,
+              backgroundColor: Colors.redAccent,
               fixedSize: Size(15,15),
             ),
           )
@@ -43,7 +43,7 @@ class VisitPlaceListPage extends StatelessWidget{
           }
 
           final List<VisitPlace> placesList = snapshot.data!;
-          return VisitPlaceList(placesList: placesList);
+          return VisitPlaceList(placesList: placesList,);
         }
         ),
       ),

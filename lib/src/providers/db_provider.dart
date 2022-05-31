@@ -44,10 +44,7 @@ class DbProvider{
     //execute the sql sentence to create the database
     await db.execute(sql);
     await db.rawInsert('insert into visitplace (id,name,description,latitude,longitude) values("1","Nigeria","Awon weré kpon be","6.465422","3.406448")');
-    await db.rawInsert('insert into visitplace (id,name,description,latitude,longitude) values("2","Spain","Awon weré kpon be","6.465422","3.406448")');
-    await db.rawInsert('insert into visitplace (id,name,description,latitude,longitude) values("3","England","Awon weré kpon be","6.465422","3.406448")');
-    await db.rawInsert('insert into visitplace (id,name,description,latitude,longitude) values("4","Ghana","Awon weré kpon be","6.465422","3.406448")');
-    await db.rawInsert('insert into visitplace (id,name,description,latitude,longitude) values("5","Damian","Awon weré kpon be","6.465422","3.406448")');
+    await db.rawInsert('insert into visitplace (id,name,description,latitude,longitude) values("2","A Coruña","Awon weré kpon be","43.362343","-8.411540")');
   }
 
   Future close() async{
