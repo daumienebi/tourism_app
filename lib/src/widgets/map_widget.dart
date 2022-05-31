@@ -130,6 +130,43 @@ class _MapWidgetState extends State<MapWidget>
   }
 
   Widget _getMap(double latitude, double longitude) {
+    //VisitPlaceProvider visitPlaceProvider =
+    // Provider.of<VisitPlaceProvider>(context, listen: true);
+    //_markerList = visitPlaceProvider.markers;
+    //print("count + ${visitPlaceProvider.markers.length}");
+    return
+      Consumer(
+          builder: (_, VisitPlaceProvider provider, __) {
+            final GoogleMap googleMap = GoogleMap(
+                initialCameraPosition:
+                CameraPosition(target: LatLng(latitude, longitude), zoom: 7),
+                compassEnabled: _compasActivated,
+                mapToolbarEnabled: _toolBarActivated,
+                cameraTargetBounds: _cameraTargetBounds,
+                minMaxZoomPreference: _minMaxZoomPreference,
+                mapType: _mapType,
+                rotateGesturesEnabled: _rotationActivated,
+                scrollGesturesEnabled: _scrollActivated,
+                tiltGesturesEnabled: _tiltActivated,
+                zoomControlsEnabled: _zoomControlsActivated,
+                zoomGesturesEnabled: _zoomGestureActivated,
+                myLocationButtonEnabled: _localizationActivated,
+                myLocationEnabled: _localizationButtonActivated,
+                onMapCreated: onMapCreate,
+                onCameraMove: _updateCameraPosition,
+                trafficEnabled: _trafficActivated,
+                onLongPress: _addMarkerToMap,
+                markers: provider.markers
+
+            );
+
+            //_defaultMarker(latitude,longitude);
+            return googleMap;
+          }
+      );
+  }
+
+  Widget _getMap2(double latitude, double longitude) {
     VisitPlaceProvider visitPlaceProvider =
         Provider.of<VisitPlaceProvider>(context, listen: true);
     _markerList = visitPlaceProvider.markers;
